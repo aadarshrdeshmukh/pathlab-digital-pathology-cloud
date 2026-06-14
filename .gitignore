@@ -1,0 +1,30 @@
+# Local dependencies
+node_modules/
+
+# Next.js build output
+.next/
+out/
+
+# Environment files
+.env
+backend/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE configurations
+.idea/
+.vscode/
+
+# OS metadata files
+.DS_Store
+Thumbs.db
+
+# Uploads directory contents
+backend/uploads/*
+!backend/uploads/sample_report.pdf
+
+# Personal guides & dev notes (not project deliverables)
+AWS_MANUAL_SETUP_GUIDE.md
+frontend/scroll-guides.md

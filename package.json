@@ -1,0 +1,9 @@
+{
+  "name": "pathlab-workspace",
+  "version": "1.0.0",
+  "description": "PathLab Cloud Workspace Local Runner",
+  "scripts": {
+    "dev": "./dev.sh",
+    "db:setup": "./install-local-db.sh"
+  }
+}
