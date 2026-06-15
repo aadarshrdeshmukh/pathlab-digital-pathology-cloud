@@ -28,22 +28,22 @@ const upload = multer({
 
 // Check if AWS is configured (ignoring standard placeholder values)
 const isS3Configured = 
-  process.env.AWS_ACCESS_KEY_ID && 
-  process.env.AWS_ACCESS_KEY_ID !== 'your_aws_access_key_id' &&
-  process.env.AWS_SECRET_ACCESS_KEY && 
-  process.env.AWS_SECRET_ACCESS_KEY !== 'your_aws_secret_access_key' &&
   process.env.AWS_BUCKET_NAME &&
-  process.env.AWS_BUCKET_NAME !== 'your_s3_bucket_name';
+  process.env.AWS_BUCKET_NAME !== 'your_s3_bucket_name' &&
+  process.env.AWS_BUCKET_NAME !== '';
 
 let s3Client;
 if (isS3Configured) {
-  s3Client = new S3Client({
-    region: process.env.AWS_REGION || 'us-east-1',
-    credentials: {
+  const s3Config = { region: process.env.AWS_REGION || 'us-east-1' };
+  // Only set explicit credentials if access keys are provided
+  // Otherwise, the SDK will use the EC2 instance's IAM role automatically
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_ACCESS_KEY_ID !== 'your_aws_access_key_id') {
+    s3Config.credentials = {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
-  });
+    };
+  }
+  s3Client = new S3Client(s3Config);
 }
 
 // GET /api/reports/executive (admin-only aggregated executive summary)
