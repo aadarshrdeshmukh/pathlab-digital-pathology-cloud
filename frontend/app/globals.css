@@ -10,9 +10,9 @@
     --primary-active: #2b47b8;
     --primary-glow: rgba(79, 110, 247, 0.15);
     
-    --bg-gradient-start: #8b9cd6;
-    --bg-gradient-mid: #a3b3e0;
-    --bg-gradient-end: #c8d0e8;
+    --bg-gradient-start: #b8c4e0;
+    --bg-gradient-mid: #c4cde6;
+    --bg-gradient-end: #d5dced;
     
     /* Text Colors */
     --text-primary: #1e254c;
@@ -115,6 +115,11 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+@keyframes barGrow {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to { transform: scaleY(1); transform-origin: bottom; }
 }
 
 .animate-fade-in {
@@ -348,6 +353,7 @@
 }
 
 .page-title-bar .title-gear {
+  display: none;
   position: absolute;
   width: 32px;
   height: 32px;

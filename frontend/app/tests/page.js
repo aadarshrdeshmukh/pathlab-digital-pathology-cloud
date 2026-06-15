@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
-import Sidebar from '../../components/Sidebar';
+
 import Navbar from '../../components/Navbar';
-import { ClipboardList, Plus, X, AlertCircle, Loader, Search, Clock, CheckCircle2, Settings } from 'lucide-react';
+import { ClipboardList, Plus, X, AlertCircle, Loader, Search, Clock, CheckCircle2 } from 'lucide-react';
 
 export default function TestsPage() {
   const router = useRouter();
@@ -101,26 +101,17 @@ export default function TestsPage() {
 
   const canModifyTests = user?.role === 'admin' || user?.role === 'technician';
 
-  const sidebarItems = [
-    { id: 'all', name: 'All Requests', icon: ClipboardList },
-    { id: 'pending', name: 'Pending', icon: Clock },
-    { id: 'processing', name: 'Processing', icon: Loader },
-    { id: 'completed', name: 'Completed', icon: CheckCircle2 },
-  ];
-  if (canModifyTests) sidebarItems.push({ id: 'create', name: 'Create Request', icon: Plus, onClick: () => setIsModalOpen(true) });
+
 
   return (
     <div className="portal-shell">
       <Navbar />
       <div className="portal-glass-container">
       <div className="page-title-bar">
-        <button className="title-gear left" aria-label="Settings"><Settings className="h-4 w-4" /></button>
         <h1>Test Requests</h1>
-        <button className="title-gear right" aria-label="Settings"><Settings className="h-4 w-4" /></button>
       </div>
 
-      <div className="page-layout">
-        <Sidebar items={sidebarItems} activeId="all" />
+      <div style={{ padding: 'var(--content-padding)', flex: 1 }}>
 
         <main className="content-card animate-slide-up">
           <div className="content-card-header">

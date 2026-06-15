@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const authMiddleware = require('../middleware/auth');
+const requireRole = require('../middleware/requireRole');
 const logAudit = require('../utils/auditLog');
 
 // Apply auth middleware to all patient routes
@@ -57,7 +58,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/patients
-router.post('/', async (req, res) => {
+router.post('/', requireRole('admin', 'technician'), async (req, res) => {
   const { name, age, gender, contact } = req.body;
 
   if (!name || !age || !gender || !contact) {

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
 import Navbar from '../../components/Navbar';
-import Sidebar from '../../components/Sidebar';
+
 import {
   Shield, BarChart3, Users, FlaskConical, FileCheck, Activity,
-  AlertTriangle, Loader, Settings, TrendingUp, PieChart
+  AlertTriangle, Loader, TrendingUp, PieChart
 } from 'lucide-react';
 
 export default function ExecutiveReportPage() {
@@ -47,11 +47,7 @@ export default function ExecutiveReportPage() {
     fetchReport();
   }, [router]);
 
-  const sidebarItems = [
-    { id: 'overview', name: 'Summary', icon: PieChart },
-    { id: 'priority', name: 'Priority', icon: TrendingUp },
-    { id: 'staff', name: 'Staff', icon: Users },
-  ];
+
 
   const getCompletionColor = (rate) => {
     const r = parseFloat(rate);
@@ -65,13 +61,10 @@ export default function ExecutiveReportPage() {
       <Navbar />
       <div className="portal-glass-container">
         <div className="page-title-bar">
-          <button className="title-gear left" aria-label="Settings"><Settings className="h-4 w-4" /></button>
           <h1>Executive Report</h1>
-          <button className="title-gear right" aria-label="Settings"><Settings className="h-4 w-4" /></button>
         </div>
 
-        <div className="page-layout">
-          <Sidebar items={sidebarItems} activeId="overview" />
+        <div style={{ padding: 'var(--content-padding)', flex: 1 }}>
 
           <main className="content-card animate-slide-up">
             <div className="content-card-header">

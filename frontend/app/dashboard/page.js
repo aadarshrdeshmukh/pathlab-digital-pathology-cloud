@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
-import Sidebar from '../../components/Sidebar';
+
 import Navbar from '../../components/Navbar';
 import StatCard from '../../components/StatCard';
 import {
   Users, FlaskConical, FileCheck, ArrowRight, Loader, AlertTriangle,
-  LayoutDashboard, BarChart3, Activity, Settings
+  LayoutDashboard, BarChart3, Activity, Inbox
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [chartData, setChartData] = useState({ days: [], values: [], counts: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeSidebar, setActiveSidebar] = useState('overview');
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -68,12 +68,7 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [router]);
 
-  const sidebarItems = [
-    { id: 'overview', name: 'Overview', icon: LayoutDashboard },
-    { id: 'analytics', name: 'Analytics', icon: BarChart3 },
-    { id: 'activity', name: 'Activity', icon: Activity },
-    { id: 'settings', name: 'Settings', icon: Settings },
-  ];
+
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -113,18 +108,11 @@ export default function Dashboard() {
 
       {/* Page Title Bar */}
       <div className="page-title-bar">
-        <button className="title-gear left" aria-label="Settings">
-          <Settings className="h-4 w-4" />
-        </button>
         <h1>Dashboard</h1>
-        <button className="title-gear right" aria-label="Settings">
-          <Settings className="h-4 w-4" />
-        </button>
       </div>
 
       {/* Page Layout */}
-      <div className="page-layout">
-        <Sidebar items={sidebarItems} activeId={activeSidebar} onSelect={setActiveSidebar} />
+      <div style={{ padding: 'var(--content-padding)', flex: 1 }}>
 
         <main className="content-card animate-slide-up">
           {/* Content Header */}
@@ -163,13 +151,14 @@ export default function Dashboard() {
           ) : (
             <>
               {/* Stat Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' }}>
+              <div className="stagger-children" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '24px' }}>
                 <StatCard
                   title="Total Registered Patients"
                   value={stats.totalPatients}
                   icon={Users}
                   color="indigo"
                   description="Database aggregate of enrolled patients"
+                  style={{ opacity: 0, animation: 'slideUp 0.45s cubic-bezier(0.4,0,0.2,1) forwards' }}
                 />
                 <StatCard
                   title="Active Test Requests"
@@ -177,6 +166,7 @@ export default function Dashboard() {
                   icon={FlaskConical}
                   color="amber"
                   description="Tests processing or awaiting technicians"
+                  style={{ opacity: 0, animation: 'slideUp 0.45s cubic-bezier(0.4,0,0.2,1) 60ms forwards' }}
                 />
                 <StatCard
                   title="Completed PDF Reports"
@@ -184,6 +174,7 @@ export default function Dashboard() {
                   icon={FileCheck}
                   color="emerald"
                   description="Uploaded pathology records hosted on S3"
+                  style={{ opacity: 0, animation: 'slideUp 0.45s cubic-bezier(0.4,0,0.2,1) 120ms forwards' }}
                 />
                 <StatCard
                   title="Active Staff Members"
@@ -191,22 +182,31 @@ export default function Dashboard() {
                   icon={Activity}
                   color="rose"
                   description="Registered operational staff on system"
+                  style={{ opacity: 0, animation: 'slideUp 0.45s cubic-bezier(0.4,0,0.2,1) 180ms forwards' }}
                 />
               </div>
 
               {/* Chart & Recent Activity */}
-              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+              <div style={{
+                display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px',
+                opacity: 0, animation: 'slideUp 0.5s cubic-bezier(0.4,0,0.2,1) 0.25s forwards',
+              }}>
                 {/* Workload Chart */}
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.4)',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(79,110,247,0.03) 100%)',
+                  border: '1px solid rgba(79, 110, 247, 0.1)',
+                  borderLeft: '3px solid rgba(79, 110, 247, 0.4)',
                   borderRadius: '20px',
                   padding: '24px',
                   minHeight: '300px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                }}>
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 30px rgba(79,110,247,0.08)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
+                >
                   <div>
                     <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e254c', marginBottom: '4px' }}>Workload Statistics</h3>
                     <p style={{ fontSize: '12px', color: '#6c759d' }}>Test request queue volume over the last 5 operational days</p>
@@ -225,19 +225,50 @@ export default function Dashboard() {
                     borderBottom: '1px solid rgba(79, 110, 247, 0.08)',
                     height: '180px',
                   }}>
+                    {/* Horizontal gridlines */}
+                    {[0.25, 0.5, 0.75].map((fraction, i) => (
+                      <div key={i} style={{
+                        position: 'absolute',
+                        left: '24px',
+                        right: '24px',
+                        bottom: `${8 + (180 - 8) * fraction}px`,
+                        borderTop: '1px dashed rgba(79, 110, 247, 0.07)',
+                        pointerEvents: 'none',
+                      }} />
+                    ))}
+
                     {chartValues.map((heightPercent, index) => (
                       <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '20%', position: 'relative' }} className="group">
+                        {/* Count label above bar */}
+                        <span style={{
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          color: '#4f6ef7',
+                          marginBottom: '4px',
+                          opacity: chartCounts[index] > 0 ? 0.8 : 0,
+                        }}>
+                          {chartCounts[index]}
+                        </span>
                         <div
                           style={{
                             height: `${heightPercent}%`,
                             width: '48px',
-                            borderRadius: '12px 12px 0 0',
-                            background: 'linear-gradient(to top, #4f6ef7, #7bb8ff)',
+                            borderRadius: '12px 12px 4px 4px',
+                            background: 'linear-gradient(180deg, #7bb8ff 0%, #4f6ef7 100%)',
                             transition: 'all 0.3s ease',
                             cursor: 'pointer',
-                            boxShadow: '0 4px 12px rgba(79, 110, 247, 0.15)',
+                            boxShadow: '0 4px 14px rgba(79, 110, 247, 0.18)',
+                            animation: `barGrow 0.6s cubic-bezier(0.4,0,0.2,1) ${0.3 + index * 0.08}s both`,
                           }}
                           title={`${chartCounts[index]} tests`}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.transform = 'scaleY(1.04)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(79, 110, 247, 0.28)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.transform = 'scaleY(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(79, 110, 247, 0.18)';
+                          }}
                         />
                       </div>
                     ))}
@@ -252,14 +283,19 @@ export default function Dashboard() {
 
                 {/* Recent Queue */}
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.4)',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(16,185,129,0.03) 100%)',
+                  border: '1px solid rgba(16, 185, 129, 0.1)',
+                  borderLeft: '3px solid rgba(16, 185, 129, 0.4)',
                   borderRadius: '20px',
                   padding: '24px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
-                }}>
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 8px 30px rgba(16,185,129,0.08)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = 'none'; }}
+                >
                   <div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                       <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e254c' }}>Recent Queue</h3>
@@ -274,9 +310,34 @@ export default function Dashboard() {
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                       {recentTests.length === 0 ? (
-                        <p style={{ fontSize: '12px', color: '#6c759d', textAlign: 'center', padding: '32px 0' }}>
-                          No recent test requests.
-                        </p>
+                        <div style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          padding: '36px 16px',
+                          gap: '10px',
+                        }}>
+                          <div style={{
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '14px',
+                            background: 'rgba(79, 110, 247, 0.06)',
+                            border: '1px solid rgba(79, 110, 247, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}>
+                            <Inbox style={{ width: '22px', height: '22px', color: '#a5b4fc' }} />
+                          </div>
+                          <p style={{ fontSize: '13px', fontWeight: 600, color: '#6c759d', textAlign: 'center' }}>
+                            Queue is clear
+                          </p>
+                          <p style={{ fontSize: '11px', color: '#9ca3c4', textAlign: 'center', lineHeight: 1.5 }}>
+                            No pending test requests at the moment.{' '}
+                            <Link href="/tests" style={{ color: '#4f6ef7', fontWeight: 600, textDecoration: 'none' }}>Submit one →</Link>
+                          </p>
+                        </div>
                       ) : (
                         recentTests.map((test) => (
                           <div

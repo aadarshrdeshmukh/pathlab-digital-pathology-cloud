@@ -62,7 +62,7 @@ router.get('/executive', requireRole('admin'), async (req, res) => {
     const [recentActivity] = await pool.query(
       `SELECT tr.*, p.name AS patient_name FROM test_requests tr
        JOIN patients p ON tr.patient_id = p.id
-       ORDER BY tr.updated_at DESC LIMIT 10`
+       ORDER BY tr.created_at DESC LIMIT 10`
     );
     const [staffBreakdown] = await pool.query(
       'SELECT role, COUNT(*) AS count FROM staff GROUP BY role'
@@ -158,7 +158,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/reports (multipart/form-data upload)
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', requireRole('admin', 'doctor'), upload.single('file'), async (req, res) => {
   const { test_id, result_summary } = req.body;
 
   if (!test_id || !result_summary) {

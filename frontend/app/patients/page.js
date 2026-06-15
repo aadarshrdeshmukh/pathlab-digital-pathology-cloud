@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
-import Sidebar from '../../components/Sidebar';
+
 import Navbar from '../../components/Navbar';
-import { Search, UserPlus, X, AlertCircle, Loader, UserCheck, Users, Clock, Settings } from 'lucide-react';
+import { Search, UserPlus, X, AlertCircle, Loader, UserCheck, Users, Clock } from 'lucide-react';
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -83,13 +83,7 @@ export default function PatientsPage() {
 
   const canAddPatient = user?.role === 'admin' || user?.role === 'technician';
 
-  const sidebarItems = [
-    { id: 'all', name: 'All Patients', icon: Users },
-    { id: 'recent', name: 'Recent', icon: Clock },
-  ];
-  if (canAddPatient) {
-    sidebarItems.push({ id: 'add', name: 'Add Patient', icon: UserPlus, onClick: () => setIsModalOpen(true) });
-  }
+
 
   return (
     <div className="portal-shell">
@@ -97,13 +91,10 @@ export default function PatientsPage() {
 
       <div className="portal-glass-container">
       <div className="page-title-bar">
-        <button className="title-gear left" aria-label="Settings"><Settings className="h-4 w-4" /></button>
         <h1>Patients</h1>
-        <button className="title-gear right" aria-label="Settings"><Settings className="h-4 w-4" /></button>
       </div>
 
-      <div className="page-layout">
-        <Sidebar items={sidebarItems} activeId="all" />
+      <div style={{ padding: 'var(--content-padding)', flex: 1 }}>
 
         <main className="content-card animate-slide-up">
           <div className="content-card-header">

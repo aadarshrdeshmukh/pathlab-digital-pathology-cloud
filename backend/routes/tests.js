@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const authMiddleware = require('../middleware/auth');
+const requireRole = require('../middleware/requireRole');
 const logAudit = require('../utils/auditLog');
 
 // Apply auth middleware to all test routes
@@ -82,7 +83,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/tests
-router.post('/', async (req, res) => {
+router.post('/', requireRole('admin', 'technician'), async (req, res) => {
   const { patient_id, test_type, priority } = req.body;
 
   if (!patient_id || !test_type || !priority) {
@@ -117,7 +118,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/tests/:id
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', requireRole('admin', 'technician'), async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 

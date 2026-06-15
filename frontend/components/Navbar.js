@@ -41,7 +41,11 @@ export default function Navbar() {
     { name: 'Patients', href: '/patients' },
     { name: 'Test Requests', href: '/tests' },
     { name: 'Reports', href: '/reports' },
-    ...(user?.role === 'admin' ? [{ name: 'Executive', href: '/executive' }] : []),
+    ...(user?.role === 'admin' ? [
+      { name: 'Staff', href: '/staff' },
+      { name: 'Audit Logs', href: '/audit-logs' },
+      { name: 'Executive', href: '/executive' },
+    ] : []),
   ];
 
   const getInitials = (name) => {

@@ -129,4 +129,21 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// GET /api/auth/staff — Admin only, list all staff members
+router.get('/staff', authMiddleware, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied. Admin role required.' });
+  }
+
+  try {
+    const [staff] = await pool.query(
+      'SELECT id, name, email, role, created_at FROM staff ORDER BY created_at DESC'
+    );
+    res.json({ data: staff });
+  } catch (error) {
+    console.error('Fetch staff error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;
