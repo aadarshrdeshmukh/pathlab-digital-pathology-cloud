@@ -274,7 +274,7 @@ AWS_BUCKET_NAME=
 
 ## 👤 Author
 
-**Adarsh R Deshmukh**
+**Aadarsh R Deshmukh**
 B.Tech CSE — ITM Skills University, Semester IV
 
 ---
