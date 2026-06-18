@@ -99,5 +99,5 @@ ON DUPLICATE KEY UPDATE id=id;
 
 -- Seed Pathology Diagnostics Report
 INSERT INTO reports (id, test_id, result_summary, file_url) VALUES
-(1, 1, 'Patient CBC shows standard haemoglobin (14.2 g/dL) and platelets (250,000 /mcL). WBC count is elevated (11,500 /mcL) indicating minor immune response.', 'http://localhost:5001/uploads/sample_report.pdf')
+(1, 1, 'Patient CBC shows standard haemoglobin (14.2 g/dL) and platelets (250,000 /mcL). WBC count is elevated (11,500 /mcL) indicating minor immune response.', '/uploads/sample_report.pdf')
 ON DUPLICATE KEY UPDATE id=id;
