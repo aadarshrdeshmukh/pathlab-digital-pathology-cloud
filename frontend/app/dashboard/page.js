@@ -55,7 +55,7 @@ export default function Dashboard() {
         const workDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
         const counts = workDays.map(d => dayMap[d] || 0);
         const maxCount = Math.max(...counts, 1);
-        const values = counts.map(c => Math.round((c / maxCount) * 80) + 10);
+        const values = counts.map(c => c === 0 ? 0 : Math.round((c / maxCount) * 80) + 15);
         setChartData({ days: workDays, values, counts });
       } catch (err) {
         console.error('Fetch dashboard error:', err);
@@ -173,7 +173,7 @@ export default function Dashboard() {
                   value={stats.completedReports}
                   icon={FileCheck}
                   color="emerald"
-                  description="Uploaded pathology records hosted on S3"
+                  description="Verified diagnostic reports on file"
                   style={{ opacity: 0, animation: 'slideUp 0.45s cubic-bezier(0.4,0,0.2,1) 120ms forwards' }}
                 />
                 <StatCard

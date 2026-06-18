@@ -279,7 +279,7 @@ export default function ReportsPage() {
                 </div>
               </div>
               <button type="submit" disabled={submitting} className="form-btn-primary" style={{ marginTop: '4px' }}>
-                {submitting ? (<><Loader className="h-4 w-4 animate-spin" /><span>Uploading to S3...</span></>) : (<span>Submit & Upload</span>)}
+                {submitting ? (<><Loader className="h-4 w-4 animate-spin" /><span>Submitting report...</span></>) : (<span>Submit &amp; Upload</span>)}
               </button>
             </form>
           </div>
