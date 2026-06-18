@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
 
 import Navbar from '../../components/Navbar';
-import { Search, UserPlus, X, AlertCircle, Loader, UserCheck, Users, Clock } from 'lucide-react';
+import { Search, UserPlus, X, AlertCircle, Loader, UserCheck, Users, Clock, Trash2 } from 'lucide-react';
 
 export default function PatientsPage() {
   const router = useRouter();
@@ -82,6 +82,17 @@ export default function PatientsPage() {
   };
 
   const canAddPatient = user?.role === 'admin' || user?.role === 'technician';
+  const canDelete = user?.role === 'admin';
+
+  const handleDelete = async (id, name) => {
+    if (!confirm(`Delete patient "${name}"? This cannot be undone.`)) return;
+    try {
+      await api.delete(`/patients/${id}`);
+      fetchPatients(currentPage, searchQuery);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete patient.');
+    }
+  };
 
 
 
@@ -147,12 +158,13 @@ export default function PatientsPage() {
                       <th>Gender</th>
                       <th>Contact</th>
                       <th>Registration Date</th>
+                      {canDelete && <th>Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {patients.length === 0 ? (
                       <tr>
-                        <td colSpan="6" style={{ textAlign: 'center', padding: '40px 20px', color: '#6c759d', fontSize: '13px' }}>
+                        <td colSpan={canDelete ? 7 : 6} style={{ textAlign: 'center', padding: '40px 20px', color: '#6c759d', fontSize: '13px' }}>
                           No patients found matching current parameters.
                         </td>
                       </tr>
@@ -186,6 +198,17 @@ export default function PatientsPage() {
                               year: 'numeric', month: 'short', day: 'numeric'
                             })}
                           </td>
+                          {canDelete && (
+                            <td>
+                              <button
+                                onClick={() => handleDelete(patient.id, patient.name)}
+                                style={{ background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#e11d48', fontSize: '11px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                aria-label={`Delete patient ${patient.name}`}
+                              >
+                                <Trash2 style={{ width: '12px', height: '12px' }} /> Delete
+                              </button>
+                            </td>
+                          )}
                         </tr>
                       ))
                     )}

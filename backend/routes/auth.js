@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const pool = require('../db');
 const authMiddleware = require('../middleware/auth');
+const logAudit = require('../utils/auditLog');
 require('dotenv').config();
 
 // Rate limiters for auth endpoints
@@ -129,19 +130,48 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/auth/staff — Admin only, list all staff members
+// GET /api/auth/staff — Admin & Technician, list all staff members
 router.get('/staff', authMiddleware, async (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Access denied. Admin role required.' });
+  if (req.user.role !== 'admin' && req.user.role !== 'technician') {
+    return res.status(403).json({ error: 'Access denied.' });
   }
 
   try {
     const [staff] = await pool.query(
       'SELECT id, name, email, role, created_at FROM staff ORDER BY created_at DESC'
     );
-    res.json({ data: staff });
+    res.json(staff);
   } catch (error) {
     console.error('Fetch staff error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /api/auth/staff/:id — Admin only, delete a staff member
+router.delete('/staff/:id', authMiddleware, async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res.status(403).json({ error: 'Access denied. Admin role required.' });
+  }
+
+  const { id } = req.params;
+  const staffId = parseInt(id);
+
+  // Prevent self-deletion
+  if (staffId === req.user.id) {
+    return res.status(400).json({ error: 'Cannot delete your own account.' });
+  }
+
+  try {
+    const [staff] = await pool.query('SELECT id, name, email FROM staff WHERE id = ?', [staffId]);
+    if (staff.length === 0) {
+      return res.status(404).json({ error: 'Staff member not found' });
+    }
+
+    await pool.query('DELETE FROM staff WHERE id = ?', [staffId]);
+    logAudit(req.user.id, 'DELETE', 'staff', staffId, { name: staff[0].name, email: staff[0].email });
+    res.json({ message: 'Staff member deleted successfully' });
+  } catch (error) {
+    console.error('Delete staff error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

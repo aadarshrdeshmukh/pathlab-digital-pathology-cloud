@@ -88,4 +88,28 @@ router.post('/', requireRole('admin', 'technician'), async (req, res) => {
   }
 });
 
+// DELETE /api/patients/:id — Admin only
+router.delete('/:id', requireRole('admin'), async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [patients] = await pool.query('SELECT id, name FROM patients WHERE id = ?', [id]);
+    if (patients.length === 0) {
+      return res.status(404).json({ error: 'Patient not found' });
+    }
+
+    // Check for linked test requests
+    const [linked] = await pool.query('SELECT COUNT(*) AS count FROM test_requests WHERE patient_id = ?', [id]);
+    if (linked[0].count > 0) {
+      return res.status(409).json({ error: `Cannot delete patient with ${linked[0].count} linked test request(s). Remove tests first.` });
+    }
+
+    await pool.query('DELETE FROM patients WHERE id = ?', [id]);
+    logAudit(req.user.id, 'DELETE', 'patient', parseInt(id), { name: patients[0].name });
+    res.json({ message: 'Patient deleted successfully' });
+  } catch (error) {
+    console.error('Delete patient error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

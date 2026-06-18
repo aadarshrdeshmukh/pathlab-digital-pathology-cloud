@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../lib/api';
 import Navbar from '../../components/Navbar';
-import { Users, UserPlus, X, AlertTriangle, Loader, Shield, Mail, Calendar } from 'lucide-react';
+import { Users, UserPlus, X, AlertTriangle, Loader, Shield, Mail, Calendar, Trash2 } from 'lucide-react';
 
 export default function StaffPage() {
   const router = useRouter();
@@ -82,6 +82,16 @@ export default function StaffPage() {
     return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
+  const handleDeleteStaff = async (id, name) => {
+    if (!confirm(`Delete staff member "${name}"? Their audit logs will be preserved.`)) return;
+    try {
+      await api.delete(`/auth/staff/${id}`);
+      fetchStaff();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to delete staff member.');
+    }
+  };
+
   return (
     <div className="portal-shell">
       <Navbar />
@@ -132,11 +142,12 @@ export default function StaffPage() {
                       <th>Email</th>
                       <th>Role</th>
                       <th>Joined</th>
+                      {user?.role === 'admin' && <th>Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {staff.length === 0 ? (
-                      <tr><td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: '#6c759d' }}>No staff members found.</td></tr>
+                      <tr><td colSpan={user?.role === 'admin' ? 6 : 5} style={{ textAlign: 'center', padding: '40px', color: '#6c759d' }}>No staff members found.</td></tr>
                     ) : staff.map((s) => (
                       <tr key={s.id}>
                         <td style={{ fontFamily: 'monospace', fontWeight: 700, color: '#4f6ef7', fontSize: '12px' }}>#{s.id}</td>
@@ -156,6 +167,21 @@ export default function StaffPage() {
                           <Calendar style={{ width: '12px', height: '12px', display: 'inline', marginRight: '4px', verticalAlign: 'middle' }} />
                           {formatDate(s.created_at)}
                         </td>
+                        {user?.role === 'admin' && (
+                          <td>
+                            {s.id === user.id ? (
+                              <span style={{ fontSize: '11px', color: '#6c759d', fontStyle: 'italic' }}>You</span>
+                            ) : (
+                              <button
+                                onClick={() => handleDeleteStaff(s.id, s.name)}
+                                style={{ background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)', borderRadius: '6px', padding: '5px 10px', cursor: 'pointer', color: '#e11d48', fontSize: '11px', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px' }}
+                                aria-label={`Delete ${s.name}`}
+                              >
+                                <Trash2 style={{ width: '12px', height: '12px' }} /> Delete
+                              </button>
+                            )}
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

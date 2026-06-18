@@ -89,7 +89,7 @@ export default function ReportsPage() {
     finally { setSubmitting(false); }
   };
 
-  const canUploadReports = user?.role === 'admin' || user?.role === 'technician';
+  const canUploadReports = user?.role === 'admin' || user?.role === 'doctor';
 
 
 
