@@ -133,8 +133,21 @@ export default function AuditLogsPage() {
                           </td>
                           <td style={{ fontWeight: 500, textTransform: 'capitalize' }}>{log.entity?.replace('_', ' ')}</td>
                           <td style={{ fontFamily: 'monospace', fontWeight: 700, color: '#4f6ef7', fontSize: '12px' }}>#{log.entity_id}</td>
-                          <td style={{ fontSize: '11px', color: '#6c759d', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            {log.details ? (typeof log.details === 'string' ? log.details : JSON.stringify(log.details)) : '—'}
+                          <td style={{ fontSize: '11px', color: '#6c759d', maxWidth: '280px' }}>
+                            {(() => {
+                              if (!log.details) return '—';
+                              const obj = typeof log.details === 'string' ? (() => { try { return JSON.parse(log.details); } catch { return null; } })() : log.details;
+                              if (!obj || typeof obj !== 'object') return typeof log.details === 'string' ? log.details : '—';
+                              return (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                  {Object.entries(obj).filter(([, v]) => v != null).map(([k, v]) => (
+                                    <span key={k} style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 600, background: 'rgba(79,110,247,0.08)', color: '#4f6ef7', border: '1px solid rgba(79,110,247,0.12)' }}>
+                                      {k.replace(/_/g, ' ')}: <span style={{ color: '#1e254c' }}>{String(v)}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              );
+                            })()}
                           </td>
                         </tr>
                       ))}

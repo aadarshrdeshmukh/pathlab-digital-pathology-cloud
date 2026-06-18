@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const fs = require('fs');
 const path = require('path');
 const pool = require('../db');
@@ -154,6 +155,36 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Fetch reports error:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /api/reports/:id/download — Generate pre-signed URL for S3 reports
+router.get('/:id/download', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [rows] = await pool.query('SELECT file_url FROM reports WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const fileUrl = rows[0].file_url;
+
+    // If it's an S3 URL, generate a pre-signed URL
+    if (isS3Configured && fileUrl.includes('s3') && fileUrl.includes('amazonaws.com')) {
+      const key = fileUrl.split('.com/')[1]; // Extract the S3 key from the URL
+      const command = new GetObjectCommand({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        Key: key,
+      });
+      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 900 }); // 15 min
+      return res.json({ url: signedUrl });
+    }
+
+    // For local uploads, return as-is
+    res.json({ url: fileUrl });
+  } catch (error) {
+    console.error('Download report error:', error);
+    res.status(500).json({ error: 'Failed to generate download link' });
   }
 });
 

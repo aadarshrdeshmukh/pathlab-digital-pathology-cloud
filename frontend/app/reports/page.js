@@ -185,22 +185,25 @@ export default function ReportsPage() {
                         </div>
                       </div>
 
-                      <a
-                        href={report.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        onClick={async () => {
+                          try {
+                            const res = await api.get(`/reports/${report.id}/download`);
+                            window.open(res.data.url, '_blank');
+                          } catch (err) { alert('Failed to open report.'); }
+                        }}
                         style={{
                           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                          padding: '10px', borderRadius: '12px',
+                          padding: '10px', borderRadius: '12px', width: '100%',
                           background: 'rgba(255, 255, 255, 0.5)', border: '1px solid rgba(255, 255, 255, 0.6)',
                           fontSize: '12px', fontWeight: 700, color: '#474f7a',
-                          textDecoration: 'none', transition: 'all 0.2s ease',
+                          cursor: 'pointer', transition: 'all 0.2s ease',
                         }}
                       >
                         <Eye style={{ width: '16px', height: '16px' }} />
                         <span>View PDF Report</span>
                         <ExternalLink style={{ width: '14px', height: '14px', color: '#6c759d' }} />
-                      </a>
+                      </button>
                     </div>
                   ))}
                 </div>
