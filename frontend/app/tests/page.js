@@ -25,6 +25,7 @@ export default function TestsPage() {
   const [priority, setPriority] = useState('Medium');
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [staffList, setStaffList] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -39,6 +40,11 @@ export default function TestsPage() {
       catch (err) { console.error('Fetch dropdown patients error:', err); }
     };
     fetchPatientsList();
+    const fetchStaffList = async () => {
+      try { const res = await api.get('/auth/staff'); setStaffList(res.data || []); }
+      catch (err) { console.error('Fetch staff error:', err); }
+    };
+    fetchStaffList();
   }, [router]);
 
   useEffect(() => {
@@ -78,6 +84,15 @@ export default function TestsPage() {
       await api.patch(`/tests/${testId}`, { status: newStatus });
       setTests(prevTests => prevTests.map(test => test.id === testId ? { ...test, status: newStatus } : test));
     } catch (err) { console.error('Update status error:', err); alert('Failed to update test status.'); }
+  };
+
+  const handleAssignChange = async (testId, staffId) => {
+    try {
+      const assigned_to = staffId ? parseInt(staffId) : null;
+      await api.patch(`/tests/${testId}`, { assigned_to });
+      const staffMember = staffList.find(s => s.id === assigned_to);
+      setTests(prevTests => prevTests.map(test => test.id === testId ? { ...test, assigned_to, assigned_to_name: staffMember?.name || null } : test));
+    } catch (err) { console.error('Assign error:', err); alert('Failed to assign test.'); }
   };
 
   const getPriorityStyle = (p) => {
@@ -182,8 +197,23 @@ export default function TestsPage() {
                                 {test.status}
                               </span>
                             </td>
-                            <td style={{ fontWeight: 500, color: test.assigned_to_name ? '#1e254c' : '#6c759d', fontStyle: test.assigned_to_name ? 'normal' : 'italic', fontSize: '12px' }}>
-                              {test.assigned_to_name || 'Unassigned'}
+                            <td>
+                              {canModifyTests ? (
+                                <select
+                                  value={test.assigned_to || ''}
+                                  onChange={(e) => handleAssignChange(test.id, e.target.value)}
+                                  className="form-input"
+                                  style={{ padding: '6px 10px', fontSize: '12px', cursor: 'pointer', maxWidth: '160px' }}
+                                  aria-label={`Assign staff for request ${test.id}`}
+                                >
+                                  <option value="">Unassigned</option>
+                                  {staffList.map((s) => (<option key={s.id} value={s.id}>{s.name}</option>))}
+                                </select>
+                              ) : (
+                                <span style={{ fontWeight: 500, color: test.assigned_to_name ? '#1e254c' : '#6c759d', fontStyle: test.assigned_to_name ? 'normal' : 'italic', fontSize: '12px' }}>
+                                  {test.assigned_to_name || 'Unassigned'}
+                                </span>
+                              )}
                             </td>
                             {canModifyTests && (
                               <td>
