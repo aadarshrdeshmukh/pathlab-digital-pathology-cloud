@@ -829,6 +829,11 @@ aside nav a[class*="bg-indigo-600\/20"] svg {
   text-align: left;
 }
 
+.portal-table-wrap th,
+.portal-table-wrap td {
+  border: 1px solid rgba(79, 110, 247, 0.08);
+}
+
 .portal-table-wrap thead tr {
   background: rgba(255, 255, 255, 0.45);
   border-bottom: 1px solid var(--glass-border);
@@ -844,7 +849,7 @@ aside nav a[class*="bg-indigo-600\/20"] svg {
 }
 
 .portal-table-wrap tbody tr {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgba(79, 110, 247, 0.08);
   transition: background-color 0.15s ease;
 }
 

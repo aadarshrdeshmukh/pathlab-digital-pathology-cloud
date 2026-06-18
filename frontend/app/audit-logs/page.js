@@ -138,11 +138,22 @@ export default function AuditLogsPage() {
                               if (!log.details) return '—';
                               const obj = typeof log.details === 'string' ? (() => { try { return JSON.parse(log.details); } catch { return null; } })() : log.details;
                               if (!obj || typeof obj !== 'object') return typeof log.details === 'string' ? log.details : '—';
+
+                              const formatValue = (k, v) => {
+                                const s = String(v);
+                                if (s.startsWith('http') || s.startsWith('/uploads')) return s.split('/').pop().substring(0, 25) + (s.split('/').pop().length > 25 ? '…' : '');
+                                if (s.length > 30) return s.substring(0, 30) + '…';
+                                return s;
+                              };
+
+                              const entries = Object.entries(obj).filter(([k, v]) => v != null && v !== '' && !(k === 'assigned_to' && v === null));
+                              if (entries.length === 0) return '—';
+
                               return (
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                                  {Object.entries(obj).filter(([, v]) => v != null).map(([k, v]) => (
-                                    <span key={k} style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '10px', fontWeight: 600, background: 'rgba(79,110,247,0.08)', color: '#4f6ef7', border: '1px solid rgba(79,110,247,0.12)' }}>
-                                      {k.replace(/_/g, ' ')}: <span style={{ color: '#1e254c' }}>{String(v)}</span>
+                                  {entries.map(([k, v]) => (
+                                    <span key={k} style={{ padding: '3px 8px', borderRadius: '6px', fontSize: '10px', fontWeight: 600, background: 'rgba(79,110,247,0.06)', color: '#4f6ef7', border: '1px solid rgba(79,110,247,0.1)', lineHeight: '1.4' }}>
+                                      {k.replace(/_/g, ' ')}: <span style={{ color: '#1e254c', fontWeight: 700 }}>{formatValue(k, v)}</span>
                                     </span>
                                   ))}
                                 </div>
