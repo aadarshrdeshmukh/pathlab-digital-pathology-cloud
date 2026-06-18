@@ -18,9 +18,11 @@ router.get('/', async (req, res) => {
       const offset = (page - 1) * limit;
 
       let query = `
-        SELECT tr.*, p.name AS patient_name, p.age AS patient_age, p.gender AS patient_gender 
+        SELECT tr.*, p.name AS patient_name, p.age AS patient_age, p.gender AS patient_gender,
+               s.name AS assigned_to_name
         FROM test_requests tr
         JOIN patients p ON tr.patient_id = p.id
+        LEFT JOIN staff s ON tr.assigned_to = s.id
       `;
       let countQuery = `
         SELECT COUNT(*) AS total 
@@ -58,9 +60,11 @@ router.get('/', async (req, res) => {
     } else {
       // Non-paginated path — supports optional ?status= filter for dropdown use
       let query = `
-        SELECT tr.*, p.name AS patient_name, p.age AS patient_age, p.gender AS patient_gender 
+        SELECT tr.*, p.name AS patient_name, p.age AS patient_age, p.gender AS patient_gender,
+               s.name AS assigned_to_name
         FROM test_requests tr
         JOIN patients p ON tr.patient_id = p.id
+        LEFT JOIN staff s ON tr.assigned_to = s.id
       `;
       let params = [];
       const { status } = req.query;
@@ -84,7 +88,7 @@ router.get('/', async (req, res) => {
 
 // POST /api/tests
 router.post('/', requireRole('admin', 'technician'), async (req, res) => {
-  const { patient_id, test_type, priority } = req.body;
+  const { patient_id, test_type, priority, assigned_to } = req.body;
 
   if (!patient_id || !test_type || !priority) {
     return res.status(400).json({ error: 'All fields (patient_id, test_type, priority) are required' });
@@ -102,14 +106,16 @@ router.post('/', requireRole('admin', 'technician'), async (req, res) => {
     }
 
     const [result] = await pool.query(
-      'INSERT INTO test_requests (patient_id, test_type, priority, status) VALUES (?, ?, ?, ?)',
-      [patient_id, test_type, priority, 'pending']
+      'INSERT INTO test_requests (patient_id, test_type, priority, status, assigned_to) VALUES (?, ?, ?, ?, ?)',
+      [patient_id, test_type, priority, 'pending', assigned_to || null]
     );
+
+    logAudit(req.user.id, 'CREATE', 'test_request', result.insertId, { patient_id, test_type, priority, assigned_to: assigned_to || null });
 
     res.status(201).json({
       message: 'Test request created successfully',
       testId: result.insertId,
-      test: { id: result.insertId, patient_id, test_type, priority, status: 'pending' }
+      test: { id: result.insertId, patient_id, test_type, priority, status: 'pending', assigned_to: assigned_to || null }
     });
   } catch (error) {
     console.error('Create test error:', error);
@@ -120,10 +126,14 @@ router.post('/', requireRole('admin', 'technician'), async (req, res) => {
 // PATCH /api/tests/:id
 router.patch('/:id', requireRole('admin', 'technician'), async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { status, assigned_to } = req.body;
 
-  if (!status || !['pending', 'processing', 'completed'].includes(status)) {
+  if (status && !['pending', 'processing', 'completed'].includes(status)) {
     return res.status(400).json({ error: 'Valid status (pending, processing, completed) is required' });
+  }
+
+  if (!status && assigned_to === undefined) {
+    return res.status(400).json({ error: 'Provide status or assigned_to to update' });
   }
 
   try {
@@ -132,9 +142,14 @@ router.patch('/:id', requireRole('admin', 'technician'), async (req, res) => {
       return res.status(404).json({ error: 'Test request not found' });
     }
 
-    await pool.query('UPDATE test_requests SET status = ? WHERE id = ?', [status, id]);
-    logAudit(req.user.id, 'UPDATE', 'test_request', parseInt(id), { status });
-    res.json({ message: 'Test status updated successfully', testId: id, status });
+    const updates = [];
+    const params = [];
+    if (status) { updates.push('status = ?'); params.push(status); }
+    if (assigned_to !== undefined) { updates.push('assigned_to = ?'); params.push(assigned_to || null); }
+    params.push(id);
+    await pool.query(`UPDATE test_requests SET ${updates.join(', ')} WHERE id = ?`, params);
+    logAudit(req.user.id, 'UPDATE', 'test_request', parseInt(id), { status, assigned_to });
+    res.json({ message: 'Test updated successfully', testId: id, status, assigned_to });
   } catch (error) {
     console.error('Update test status error:', error);
     res.status(500).json({ error: 'Internal server error' });

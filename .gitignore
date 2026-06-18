@@ -28,3 +28,9 @@ backend/uploads/*
 # Personal guides & dev notes (not project deliverables)
 AWS_MANUAL_SETUP_GUIDE.md
 frontend/scroll-guides.md
+DEMO_CLOUD_INFRASTRUCTURE.md
+DEMO_MONITORING_NETWORKING_SECURITY_AUTOMATION.md
+
+# Screenshots folder & report
+AWS SS/
+PathLab_AWS_Deployment_Report.html

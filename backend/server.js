@@ -1,4 +1,5 @@
 const express = require('express');
+const helmet = require('helmet');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
@@ -14,6 +15,8 @@ const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+app.use(helmet());
 
 // Middlewares
 app.use(cors({

@@ -153,12 +153,13 @@ export default function TestsPage() {
                       <th>Test Description</th>
                       <th>Priority</th>
                       <th>Status</th>
+                      <th>Assigned To</th>
                       {canModifyTests && <th>Update Status</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {tests.length === 0 ? (
-                      <tr><td colSpan={canModifyTests ? 6 : 5} style={{ textAlign: 'center', padding: '40px 20px', color: '#6c759d', fontSize: '13px' }}>No test requests scheduled yet.</td></tr>
+                      <tr><td colSpan={canModifyTests ? 7 : 6} style={{ textAlign: 'center', padding: '40px 20px', color: '#6c759d', fontSize: '13px' }}>No test requests scheduled yet.</td></tr>
                     ) : (
                       tests.map((test) => {
                         const ps = getPriorityStyle(test.priority);
@@ -180,6 +181,9 @@ export default function TestsPage() {
                               <span style={{ padding: '2px 10px', borderRadius: '20px', fontSize: '10px', fontWeight: 700, background: ss.bg, color: ss.color, border: `1px solid ${ss.border}` }}>
                                 {test.status}
                               </span>
+                            </td>
+                            <td style={{ fontWeight: 500, color: test.assigned_to_name ? '#1e254c' : '#6c759d', fontStyle: test.assigned_to_name ? 'normal' : 'italic', fontSize: '12px' }}>
+                              {test.assigned_to_name || 'Unassigned'}
                             </td>
                             {canModifyTests && (
                               <td>

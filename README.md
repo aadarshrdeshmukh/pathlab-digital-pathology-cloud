@@ -23,6 +23,8 @@ A full-stack Laboratory Management Portal built for Digital Pathology & Laborato
 - [AWS Services Used](#-aws-services-used)
 - [Automation Scripts](#-automation-scripts)
 - [Screenshots](#-screenshots)
+- [API Endpoints](#-api-endpoints)
+- [Links](#-links)
 
 ---
 
@@ -152,7 +154,6 @@ pathlab-digital-pathology-cloud/
 ├── docker-compose.yml           # 3-service container stack
 ├── Dockerfile.backend           # Backend container image
 ├── Dockerfile.frontend          # Frontend container image
-├── aws_architecture_pricing_report.md  # AWS pricing & architecture docs
 └── dev.sh                       # Local development runner
 ```
 
@@ -168,7 +169,7 @@ pathlab-digital-pathology-cloud/
 
 ```bash
 # Clone the repo
-git clone https://github.com/<your-username>/pathlab-digital-pathology-cloud.git
+git clone https://github.com/aadarshrdeshmukh/pathlab-digital-pathology-cloud.git
 cd pathlab-digital-pathology-cloud
 
 # Create .env file from example
@@ -185,7 +186,7 @@ docker compose up -d
 
 ```bash
 # Clone and enter project
-git clone https://github.com/<your-username>/pathlab-digital-pathology-cloud.git
+git clone https://github.com/aadarshrdeshmukh/pathlab-digital-pathology-cloud.git
 cd pathlab-digital-pathology-cloud
 
 # Run the local dev script (handles everything)
@@ -276,6 +277,15 @@ AWS_BUCKET_NAME=
 
 **Aadarsh R Deshmukh**
 B.Tech CSE — ITM Skills University, Semester IV
+
+---
+
+## 🔗 Links
+
+| | URL |
+|---|---|
+| **Live Application** | [http://3.235.241.84/](http://3.235.241.84/) |
+| **GitHub Repository** | [github.com/aadarshrdeshmukh/pathlab-digital-pathology-cloud](https://github.com/aadarshrdeshmukh/pathlab-digital-pathology-cloud) |
 
 ---
 

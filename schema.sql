@@ -55,13 +55,13 @@ CREATE INDEX idx_test_requests_patient_id ON test_requests(patient_id);
 -- 5. Create Audit Logs Table (Compliance & Auditability)
 CREATE TABLE IF NOT EXISTS audit_logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  staff_id INT NOT NULL,
+  staff_id INT NULL,
   action VARCHAR(50) NOT NULL,
   entity VARCHAR(50) NOT NULL,
   entity_id INT NOT NULL,
   details JSON,
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
+  FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE INDEX idx_audit_logs_staff ON audit_logs(staff_id);
