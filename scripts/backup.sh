@@ -2,18 +2,24 @@
 # PathLab Digital Pathology Cloud - MySQL Backup & S3 Upload Script
 # Designed to run as a nightly cron job on the Linux VM host
 
+# Load environment variables from .env
+ENV_FILE="$(dirname "$0")/../.env"
+if [ -f "$ENV_FILE" ]; then
+  source "$ENV_FILE"
+fi
+
 # Load variables
 BACKUP_DIR="/app/backups"
 TIMESTAMP=$(date +"%Y-%m-%d_%H%M%S")
 BACKUP_FILE="$BACKUP_DIR/pathlab_db_$TIMESTAMP.sql"
 GZIP_FILE="$BACKUP_FILE.gz"
 CONTAINER_NAME="pathlab-db"
-DB_NAME="pathlab_db"
+DB_NAME="${DB_NAME:-pathlab_db}"
 DB_USER="${DB_USER:-root}"
 DB_PASS="${DB_PASSWORD:?ERROR: DB_PASSWORD environment variable is not set. Export it before running this script.}"
 
 # S3 configurations (fallback to local if bucket is not defined)
-S3_BUCKET_NAME="" # e.g. "pathlab-digital-reports"
+S3_BUCKET_NAME="${AWS_BUCKET_NAME:-}"
 
 # Create local backup directory if it does not exist
 mkdir -p "$BACKUP_DIR"
