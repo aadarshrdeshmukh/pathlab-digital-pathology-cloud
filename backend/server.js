@@ -16,11 +16,37 @@ const pool = require('./db');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 
-// Middlewares
+// CORS Configuration supporting multi-origin and deployment domains (*.vercel.app, *.onrender.com)
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+  : ['http://localhost:3000'];
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+    if (!origin) return callback(null, true);
+
+    try {
+      const hostname = new URL(origin).hostname;
+      if (
+        allowedOrigins.includes('*') ||
+        allowedOrigins.includes(origin) ||
+        hostname.endsWith('.vercel.app') ||
+        hostname.endsWith('.onrender.com') ||
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1'
+      ) {
+        return callback(null, true);
+      }
+    } catch (e) {
+      // Fallback to allowing if parsing fails
+    }
+    return callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '1mb' }));

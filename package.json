@@ -1,9 +1,20 @@
 {
-  "name": "pathlab-workspace",
+  "name": "pathlab-digital-pathology-cloud",
   "version": "1.0.0",
-  "description": "PathLab Cloud Workspace Local Runner",
+  "description": "PathLab Digital Pathology Cloud Solution",
   "scripts": {
-    "dev": "./dev.sh",
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:start": "npm --prefix frontend run start",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend run start",
+    "local:dev": "./dev.sh",
     "db:setup": "./install-local-db.sh"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

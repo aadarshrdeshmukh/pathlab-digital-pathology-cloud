@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5001';
+const rawApiUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+const BACKEND_URL = rawApiUrl.replace(/\/api\/?$/, '');
 
 const nextConfig = {
   reactStrictMode: true,
