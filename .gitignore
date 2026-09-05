@@ -8,7 +8,7 @@ node_modules/
 out/
 */out/
 
-# Environment files
+# Environment and credentials files
 .env
 .env.local
 .env.development.local
@@ -18,9 +18,9 @@ backend/.env
 frontend/.env.local
 frontend/.env.production
 frontend/.env.development
-!.env.example
-!backend/.env.example
-!frontend/.env.example
+db_credentials.txt
+*.credentials
+!*.example
 
 # IDE configurations
 .idea/
